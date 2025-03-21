@@ -1,0 +1,198 @@
+#canvas
+{
+    background-color:#30c0df;
+    border: 2px solid black;
+    display: block;
+    margin: auto;
+    padding: auto;
+    
+}
+
+#usernameDisplayP {
+	color: bisque;
+}
+
+.form-popup {
+	display: none;
+	position: fixed;
+	bottom: 50%;
+	right: 50%;
+	transform: translate(50%, 50%);
+	border: 3px solid #f1f1f1;
+	z-index: 9;
+	background-color: rgb(255 126 149 / 90%);
+}
+.form-container {
+	max-width: 300px;
+	padding: 10px;
+	text-align: center;
+}
+.form-container input[type=text] {
+	width: 100%;
+	padding: 15px;
+	margin: 5px 0 22px 0;
+	border: none;
+	background: #f1f1f1;
+}
+.form-container input[type=text]:focus {
+	background-color: #ddd;
+	outline: none;
+}
+.form-container .btn {
+	background-color: #04AA6D;
+	color: white;
+	padding: 16px 20px;
+	border: none;
+	cursor: pointer;
+	width: 100%;
+	margin-bottom: 10px;
+	opacity: 0.8;
+}
+.form-container .btn:hover {
+	opacity: 1;
+}
+.form-container h1 {
+	color: white;
+}
+.form-container label {
+	color: white;
+}
+.blur-background {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(5px);
+	z-index: 8;
+}
+
+.data-\[state\=open\]\:slide-in-from-right-full[data-state=open] {
+	background-color : white;
+}
+
+.max-h-\[800px\] {
+    max-height: 950px!important;
+}
+
+
+.proof-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* width: 45%; */
+    width: 1020px;
+	min-width:900px;
+    height: 92%;
+    background-color: rgba(0, 0, 0, 0.85);
+    color: #fe5ac5;
+    font-family: monospace;
+    border-radius: 8px;
+    border: 2px solid #fe5ac5;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+.proof-container.hidden {
+  display: none;
+}
+
+.proof-header {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #2ecc71;
+  color: #2ecc71;
+}
+
+.proof-log {
+	flex: 1;
+    overflow-y: auto;
+    font-size: 16px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+    white-space: pre-wrap;
+    line-height: 1.56;
+    letter-spacing: 0.10pt;
+}
+
+.proof-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.proof-button {
+  padding: 10px 20px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.back-to-game {
+  background-color: #fe5ac5;
+}
+
+.restart-game {
+  background-color: #e74c3c;
+}
+
+.normal-text {
+    display: inline-block; /* Metinlerin yan yana durmasını sağlar */
+}
+
+.mirrored-text {
+    display: inline-block;
+    transform: scaleX(-1); /* Yatayda ayna efekti uygular */
+}
+
+.font-oracle {
+    font-family: /* istediğiniz font */
+}
+
+.select-none {
+    user-select: none; /* Metin seçimini engeller */
+}
+
+.text-sm {
+    font-size: small; /* Metin boyutunu ayarlar */
+	font-size: 13px;
+}
+
+.font-viafont.text-sm {
+	font-size: 13px;
+}
+
+.px-14 {
+    padding-left: 4rem!important;
+    padding-right: 4rem!important;
+}
+
+#webamp-container {
+	position: absolute;
+	top: 100px; /* Header h-7 (~28px) altına yerleştir */
+	right: 0;
+	z-index: 6; /* Header'ın üstünde kalsın */
+	padding: 10px; /* Kenarlardan boşluk */
+}
+
+#webamp {
+    position: absolute;
+    top: 40px!important;
+    left: -10px!important;
+}
+
+.maincover{
+	z-index:6;
+}

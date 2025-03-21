@@ -1,0 +1,230 @@
+// #![no_main]
+// sp1_zkvm::entrypoint!(main);
+
+use serde::{Serialize, Deserialize};
+
+
+const SCRN_WIDTH: f32 = 432.0;
+const PIPE_WIDTH: f32 = 52.0;
+const BIRD_SPRITE_WIDTH: f32 = 50.0;
+const BIRD_SPRITE_HEIGHT: f32 = 50.0;
+const RAD: f32 = std::f32::consts::PI / 180.0;
+
+const GRAVITY: f32 = 0.125;
+const THRUST: f32 = 3.6;
+const PIPE_GAP: f32 = 150.0;
+const BIRD_X: f32 = 320.0;
+const BASE_SPEED: f32 = 2.0;
+const SPEED_INCREMENT: f32 = 0.2;
+
+#[derive(Clone, Copy, Debug)]
+struct Pipe {
+    x: f32,
+    y: f32,
+    gap: f32, // Dinamik gap
+}
+
+#[derive(Clone, Copy, Debug)]
+struct Bird {
+    x: f32,
+    y: f32,
+    speed: f32,
+    rotation: f32,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum GameState {
+    Play,
+    GameOver,
+}
+
+// Commit edilecek çıktı struct’ı
+#[derive(Serialize, Deserialize, Debug)]
+struct GameOutput {
+    score: u32,
+    username: String,
+}
+
+
+fn main() {
+    // let flaps: Vec<u32> = sp1_zkvm::io::read::<Vec<u32>>();
+	let flaps: Vec<u32> = vec![29, 90, 135, 181, 236, 246, 325, 333, 341, 416, 425, 481, 544, 611, 619, 627, 635, 702, 709, 717, 725, 800, 861, 909, 944, 993];
+	let username: String = "".to_string();
+    let mut score_flaps: Vec<u32> = Vec::new();
+    let mut bird = Bird {
+        x: BIRD_X,
+        y: 260.0,
+        speed: 0.0,
+        rotation: 0.0
+    };
+    let mut pipes: Vec<Pipe> = Vec::new();
+    let mut score: u32 = 0;
+    let mut frame_count: u32 = 0;
+    let mut game_state = GameState::Play;
+    let mut dx = BASE_SPEED;
+	let mut next_spawn_frame: u32 = 0; // Bir sonraki borunun spawn olacağı frame
+    const BASE_PIPE_DISTANCE: f32 = 200.0; // Sabit mesafe (dx = 2.0 için 100 frame * 2 hız)
+    let mut flap_index: usize = 0;
+    let mut moved: bool = true;
+
+	bird.rotation = 0.0;
+	bird.y += if frame_count % 10 == 0 { (frame_count as f32 * RAD).sin() } else { 0.0 };
+		println!("aaaaaaaaaaa");
+                    // flap(&mut bird);
+                    // flap_index += 1;
+    while game_state != GameState::GameOver {
+        match game_state {
+            GameState::Play => {
+				
+                bird.y += bird.speed;
+                set_rotation(&mut bird);
+                bird.speed += GRAVITY;
+				
+				
+				// if flap_index < flaps.len() && frame_count == flaps[flap_index] && flap_index == 0 {
+					// println!("aaaaaaaaaaa");
+                    // flap(&mut bird);
+                    // flap_index += 1;
+                // }	
+
+				
+				if collision_and_score(&bird, &mut pipes, &mut score, frame_count, &mut moved, &mut dx, &mut score_flaps) {
+					println!("collision_and_score");
+                    game_state = GameState::GameOver;
+                }
+				
+                update_pipes(&mut pipes, frame_count, dx, &mut moved, &mut next_spawn_frame);
+				
+				
+				frame_count += 1;
+				
+				if flap_index < flaps.len() && frame_count == flaps[flap_index] {
+					println!("flap: {}", flap_index); // Debug
+					flap_index += 1;
+                    flap(&mut bird);
+                }
+				
+			
+            }
+            GameState::GameOver => {
+				break;
+            }
+        }
+					
+    }
+	
+	println!("SCOREEEEEEEEEEE: {}", score);
+	// sp1_zkvm::io::commit(&score);
+}
+
+fn collision_and_score(bird: &Bird, pipes: &mut Vec<Pipe>, score: &mut u32, frame_count: u32, moved: &mut bool, dx: &mut f32, score_flaps: &mut Vec<u32>) -> bool {
+    if pipes.is_empty() {
+		println!("pipe empty");
+        return false;
+    }
+
+    let pipe = &mut pipes[0];
+    let roof = pipe.y + 320.0;
+    let floor = roof + pipe.gap; // Dinamik gap
+    let w = PIPE_WIDTH;
+
+	const TOLERANCE: f32 = 5.0;
+    if 
+        bird.x + BIRD_SPRITE_WIDTH / 2.0 >= pipe.x + TOLERANCE && // Boruya girişte tolerans
+        bird.x - BIRD_SPRITE_WIDTH / 2.0 <= pipe.x + w - TOLERANCE // Borudan çıkışta tolerans
+    {
+        if 
+            bird.y - BIRD_SPRITE_HEIGHT / 2.0 <= roof - TOLERANCE || // Üst boruya tolerans
+            bird.y + BIRD_SPRITE_HEIGHT / 2.0 >= floor + TOLERANCE    // Alt boruya tolerans
+        {
+				println!("bird.y: {} BIRD_SPRITE_HEIGHT: {} roof: {} floor: {}", bird.y, BIRD_SPRITE_HEIGHT, roof, floor);
+					
+            return true;
+        } else if *moved && bird.x < pipe.x {
+            *score += 1;
+            score_flaps.push(frame_count);
+            *moved = false;
+            if *score % 5 == 0 {
+				println!("dx1: {}", dx); // Debug
+                *dx += *dx * SPEED_INCREMENT; // Her 5 skorda hız %20 artıyor
+				println!("dx2: {}", dx); // Debug
+            }
+        }
+    }
+    false
+}
+
+
+
+fn set_rotation(bird: &mut Bird) {
+    if bird.speed <= 0.0 {
+        bird.rotation = (-25.0_f32).max((-25.0 * bird.speed) / (-1.0 * THRUST));
+    } else if bird.speed > 0.0 {
+        bird.rotation = 90.0_f32.min((90.0 * bird.speed) / (THRUST * 2.0));
+    }
+}
+
+fn flap(bird: &mut Bird) {
+    if bird.y > 0.0 {
+        bird.speed = -THRUST;
+    }
+}
+
+fn update_pipes(pipes: &mut Vec<Pipe>, frame_count: u32, dx: f32, moved: &mut bool, next_spawn_frame: &mut u32) {
+    const BASE_PIPE_DISTANCE: f32 = 200.0;
+    if frame_count >= *next_spawn_frame {
+        println!("----------------"); // Debug
+        println!("----------------"); // Debug
+        
+        let pipe_y = -160.0 + 50.0 * (frame_count as f32 * 0.05).sin(); // Üst boru y pozisyonu, -210 ile -110 arası
+        let gap = 150.0; // Sabit gap
+        
+        println!("frame_count: {}", frame_count); // Debug
+        println!("pipe_y: {}", pipe_y); // Debug
+        println!("gap: {}", gap); // Debug
+        
+        pipes.push(Pipe {
+            x: -PIPE_WIDTH,
+            y: pipe_y, // Dinamik üst boru pozisyonu
+            gap: gap,  // Sabit gap
+        });
+        *next_spawn_frame = frame_count + (BASE_PIPE_DISTANCE / dx).floor() as u32;
+        println!("Rust next_spawn_frame: {}, pipe_y: {}, gap: {}", *next_spawn_frame, pipe_y, gap);
+
+        println!("frame_count: {}", frame_count); // Debug
+        println!("dx: {}", dx); // Debug
+        println!("Rust next_spawn_frame: {}", *next_spawn_frame); // Debug
+        println!("----------------"); // Debug
+        println!("----------------"); // Debug
+    }
+    for pipe in pipes.iter_mut() {
+        pipe.x += dx;
+    }
+    if let Some(first_pipe) = pipes.first() {
+        if first_pipe.x > SCRN_WIDTH {
+            pipes.remove(0);
+            *moved = true;
+        }
+    }
+}
+
+
+// fn update_pipes(pipes: &mut Vec<Pipe>, frame_count: u32, dx: f32, moved: &mut bool) {
+    // if frame_count % 100 == 0 {
+        // let pipe_y = -140.0 * 1.5;
+        // pipes.push(Pipe {
+            // x: -PIPE_WIDTH,
+            // y: pipe_y,
+        // });
+
+    // }
+    // for pipe in pipes.iter_mut() {
+        // pipe.x += dx;
+    // }
+    // if let Some(first_pipe) = pipes.first() {
+        // if first_pipe.x > SCRN_WIDTH {
+            // pipes.remove(0);
+            // *moved = true;
+        // }
+    // }
+// }

@@ -1,0 +1,13 @@
+[package]
+version = "0.1.0"
+name = "flappy-bird"
+edition = "2021"
+
+#[[bin]]
+#name = "test_main"  # Çalıştırılacak programın adı
+#path = "src/test_main.rs"  # Dosyanın konumu
+
+[dependencies]
+sp1-zkvm = "4.0.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
